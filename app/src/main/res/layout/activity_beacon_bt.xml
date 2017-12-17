@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:keepScreenOn="true"
+    tools:context="ec.edu.ute.dordonez.ipsbt.BeaconBt">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tiempo de visibilidad (segundos):" />
+
+
+    <EditText
+        android:id="@+id/etSeg"
+        android:layout_width="120dp"
+        android:layout_height="wrap_content"
+        android:text="0"/>
+
+    <ToggleButton
+        android:id="@+id/tBut"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textOn="Visible"
+        android:textOff="Off"/>
+
+</LinearLayout>

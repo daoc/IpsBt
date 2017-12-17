@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:id="@+id/mBeacon"
+        android:title="Beacon"
+        android:orderInCategory="100" />
+    <item android:id="@+id/mReceiver"
+        android:title="Receiver"
+        android:orderInCategory="200" />
+
+</menu>
