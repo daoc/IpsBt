@@ -35,7 +35,7 @@ import java.util.Set;
 
 /**
  * Created by dordonez on 9/dic/2017.
- * Modified by dordonez on 12/dic/2017.
+ * Modified by dordonez on 20/dic/2017.
  */
 public class ReceiverBt extends Activity {
     private TextView tv;
@@ -164,6 +164,7 @@ public class ReceiverBt extends Activity {
 
         @Override
         public void onReceive(Context context, Intent intent) {
+            long millis = System.currentTimeMillis();
             switch (intent.getAction()) {
                 case BluetoothDevice.ACTION_FOUND:
                     int rssi = intent.getShortExtra(BluetoothDevice.EXTRA_RSSI,Short.MIN_VALUE);
@@ -172,7 +173,7 @@ public class ReceiverBt extends Activity {
                     String by = balizasActivas.get(name) != null ? balizasActivas.get(name).second : "-";
                     try {
                         fileLog.write(String.format(template,
-                            new Date().getTime(), myname, etX.getText(), etY.getText(), name, rssi, bx, by).getBytes());
+                                millis, myname, etX.getText(), etY.getText(), name, rssi, bx, by).getBytes());
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -191,8 +192,8 @@ public class ReceiverBt extends Activity {
                     }
                     iterCounter++;
                     try {
-                        //fileLog.write(String.format(template,
-                        //        new Date().getTime(), myname, etX.getText(), etY.getText(), "START", 0, "-", "-").getBytes());
+                        fileLog.write(String.format(template,
+                                millis, myname, etX.getText(), etY.getText(), "START(" + iterCounter + ")", 0, "-", "-").getBytes());
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -201,7 +202,7 @@ public class ReceiverBt extends Activity {
                 case BluetoothAdapter.ACTION_DISCOVERY_FINISHED:
                     try {
                         //fileLog.write(String.format(template,
-                        //        new Date().getTime(), myname, etX.getText(), etY.getText(), "FINISH", 0, "-", "-").getBytes());
+                        //        millis, myname, etX.getText(), etY.getText(), "FINISH", 0, "-", "-").getBytes());
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -216,7 +217,7 @@ public class ReceiverBt extends Activity {
                     int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1);
                     try {
                         //fileLog.write(String.format(template,
-                        //        new Date().getTime(), myname, etX.getText(), etY.getText(), String.valueOf(state), 0, "-", "-").getBytes());
+                        //        millis, myname, etX.getText(), etY.getText(), String.valueOf(state), 0, "-", "-").getBytes());
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
