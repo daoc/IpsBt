@@ -26,6 +26,7 @@ import android.widget.ToggleButton;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
@@ -35,7 +36,7 @@ import java.util.Set;
 
 /**
  * Created by dordonez on 9/dic/2017.
- * Modified by dordonez on 20/dic/2017.
+ * Modified by dordonez on 21/dic/2017.
  */
 public class ReceiverBt extends Activity {
     private TextView tv;
@@ -55,7 +56,7 @@ public class ReceiverBt extends Activity {
     private Cursor cursor;
     private Map<String, Pair<String, String>> balizasActivas;
     private String fileName;
-    private FileOutputStream fileLog;
+    private FileWriter fileLog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,15 +73,22 @@ public class ReceiverBt extends Activity {
         bSubX = (Button) findViewById(R.id.bSubX);
         bAddY = (Button) findViewById(R.id.bAddY);
         bSubY = (Button) findViewById(R.id.bSubY);
+        sb.setProgress(getPreferences(MODE_PRIVATE).getInt("sb", 5));
+        etDelta.setText(getPreferences(MODE_PRIVATE).getString("etDelta", "0"));
+        etX.setText(getPreferences(MODE_PRIVATE).getString("etX", "0"));
+        etY.setText(getPreferences(MODE_PRIVATE).getString("etY", "0"));
         fileName = getPreferences(MODE_PRIVATE).getString("filename", "ipsbt.txt");
         new File(Environment.getExternalStoragePublicDirectory("ipsbt"), "").mkdir();
         tv.setText("Recolecta RSSI: " + sb.getProgress() + " (" + fileName + ")");
 
         try {
-            fileLog = new FileOutputStream(
-                new File(Environment.getExternalStoragePublicDirectory("ipsbt"), fileName),
-                true);
-        } catch (FileNotFoundException e) {
+            File file =  new File(Environment.getExternalStoragePublicDirectory("ipsbt"), fileName);
+            fileLog = new FileWriter(file, true);
+            if(file.length() == 0) {
+                fileLog.write("T;Rn;Rx;Ry;Bn;Br;Bx;By;Toa;Dist\n");
+            }
+
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
@@ -106,6 +114,11 @@ public class ReceiverBt extends Activity {
         tBut.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
+                    getPreferences(MODE_PRIVATE).edit().
+                            putInt("sb", sb.getProgress()).
+                            putString("etDelta", etDelta.getText().toString()).
+                            putString("etX", etX.getText().toString()).
+                            putString("etY", etY.getText().toString()).commit();
                     sb.setEnabled(false);
                     etX.setEnabled(false);
                     etY.setEnabled(false);
@@ -159,8 +172,9 @@ public class ReceiverBt extends Activity {
 
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
         private final Set<String> balizas = new HashSet<>();
-        private final String template = "T:%d;Rn:%s;Rx:%s;Ry:%s;Bn:%s;Br:%d;Bx:%s;By:%s\n";
+        private final String template = "%d;%s;%d;%d;%s;%d;%d;%d;%d;%f\n";
         private final String myname = BluetoothAdapter.getDefaultAdapter().getName();
+        private long startTime = 0;
 
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -169,11 +183,22 @@ public class ReceiverBt extends Activity {
                 case BluetoothDevice.ACTION_FOUND:
                     int rssi = intent.getShortExtra(BluetoothDevice.EXTRA_RSSI,Short.MIN_VALUE);
                     String name = intent.getStringExtra(BluetoothDevice.EXTRA_NAME).toLowerCase();
-                    String bx = balizasActivas.get(name) != null ? balizasActivas.get(name).first : "-";
-                    String by = balizasActivas.get(name) != null ? balizasActivas.get(name).second : "-";
+                    int bx, by, rx, ry;
+                    double dist;
+                    if(balizasActivas.get(name) != null) {
+                        bx = Integer.parseInt(balizasActivas.get(name).first);
+                        by = Integer.parseInt(balizasActivas.get(name).second);
+                        rx = Integer.parseInt(etX.getText().toString());
+                        ry = Integer.parseInt(etY.getText().toString());
+                        dist = Math.sqrt(Math.pow(bx-rx, 2) + Math.pow(by-ry, 2) );
+                    } else {
+                        dist = bx = by = rx = ry = Short.MIN_VALUE;
+                    }
+
                     try {
                         fileLog.write(String.format(template,
-                                millis, myname, etX.getText(), etY.getText(), name, rssi, bx, by).getBytes());
+                                millis, myname, rx, ry, name, rssi, bx, by, millis - startTime, dist));
+
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -184,6 +209,7 @@ public class ReceiverBt extends Activity {
                     }
                     break;
                 case BluetoothAdapter.ACTION_DISCOVERY_STARTED:
+                    startTime = System.currentTimeMillis();
                     balizas.clear();
                     cursor.moveToFirst();
                     while(!cursor.isAfterLast()) {
@@ -193,11 +219,11 @@ public class ReceiverBt extends Activity {
                     iterCounter++;
                     try {
                         fileLog.write(String.format(template,
-                                millis, myname, etX.getText(), etY.getText(), "START(" + iterCounter + ")", 0, "-", "-").getBytes());
+                                millis, myname, 0, 0, "START(" + iterCounter + ")", 0, 0, 0, 0, 0.0));
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                    tvLog.append("START\n");
+                    tvLog.append("START(" + iterCounter + ")\n");
                     break;
                 case BluetoothAdapter.ACTION_DISCOVERY_FINISHED:
                     try {
@@ -217,7 +243,7 @@ public class ReceiverBt extends Activity {
                     int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1);
                     try {
                         //fileLog.write(String.format(template,
-                        //        millis, myname, etX.getText(), etY.getText(), String.valueOf(state), 0, "-", "-").getBytes());
+                        //        millis, myname, etX.getText(), etY.getText(), String.valueOf(state), 0, "-", "-"));
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -258,9 +284,10 @@ public class ReceiverBt extends Activity {
         tv.setText("Recolecta RSSI: " + sb.getProgress() + "(" + fileName + ")");
         try {
             fileLog.close();
-            fileLog = new FileOutputStream(
+            fileLog = new FileWriter(
                     new File(Environment.getExternalStoragePublicDirectory("ipsbt"), fileName),
                     true);
+            fileLog.write("T;Rn;Rx;Ry;Bn;Br;Bx;By;Toa;Dist\n");
         } catch (Exception e) {
             e.printStackTrace();
         }
