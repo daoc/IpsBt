@@ -17,6 +17,8 @@
         android:id="@+id/sb"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
         android:progress="5"
         android:max="20" />
 
@@ -28,11 +30,34 @@
         <ToggleButton
             android:id="@+id/tBut"
             android:layout_width="wrap_content"
+            android:layout_marginRight="20dp"
             android:layout_height="wrap_content"
             android:textOff="Off"
             android:textOn="Recibiendo" />
 
+        <Button
+            android:id="@+id/bNewFile"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="newFile"
+            android:text="New File" />
+
+        <Button
+            android:id="@+id/bResetAll"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="resetAll"
+            android:text="Reset All" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
         <TextView
+            android:id="@+id/textView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text=" Delta(cm): " />
@@ -42,13 +67,6 @@
             android:layout_width="80dp"
             android:layout_height="wrap_content"
             android:text="0" />
-
-        <Button
-            android:id="@+id/bNewFile"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="newFile"
-            android:text="New File" />
 
     </LinearLayout>
 
@@ -72,20 +90,26 @@
             android:id="@+id/bAddX"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="+"
+            android:text=" + "
             android:onClick="addDeltaX"/>
 
         <Button
             android:id="@+id/bSubX"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="-"
+            android:text=" - "
             android:onClick="subDeltaX"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text=" Y: "/>
+            android:text="Y: "/>
 
         <EditText
             android:id="@+id/etY"
@@ -97,22 +121,22 @@
             android:id="@+id/bAddY"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="+"
+            android:text=" + "
             android:onClick="addDeltaY"/>
 
         <Button
             android:id="@+id/bSubY"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="-"
+            android:text=" - "
             android:onClick="subDeltaY"/>
 
     </LinearLayout>
 
     <TextView
         android:id="@+id/tvLog"
-        android:gravity="bottom"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:gravity="bottom" />
 
 </LinearLayout>

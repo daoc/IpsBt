@@ -29,14 +29,18 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Date;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 
 /**
  * Created by dordonez on 9/dic/2017.
- * Modified by dordonez on 21/dic/2017.
+ * Modified by dordonez on 22/dic/2017.
  */
 public class ReceiverBt extends Activity {
     private TextView tv;
@@ -202,7 +206,7 @@ public class ReceiverBt extends Activity {
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                    tvLog.append(name + ":" + rssi + "\n");
+                    logTextView(name + ":" + rssi);
                     balizas.remove(name.toLowerCase());
                     if(balizas.isEmpty()) {
                         BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
@@ -223,7 +227,7 @@ public class ReceiverBt extends Activity {
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                    tvLog.append("START(" + iterCounter + ")\n");
+                    logTextView("START(" + iterCounter + ")");
                     break;
                 case BluetoothAdapter.ACTION_DISCOVERY_FINISHED:
                     try {
@@ -247,7 +251,7 @@ public class ReceiverBt extends Activity {
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                    tvLog.append(String.valueOf(state) + "\n");
+                    logTextView(String.valueOf(state));
                     break;
             }
             tvLog.setMovementMethod(new ScrollingMovementMethod());
@@ -290,6 +294,29 @@ public class ReceiverBt extends Activity {
             fileLog.write("T;Rn;Rx;Ry;Bn;Br;Bx;By;Toa;Dist\n");
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    public void resetAll(View v) {
+        getPreferences(MODE_PRIVATE).edit().
+                putString("filename", "ipsbt.txt").
+                putInt("sb", 5).
+                putString("etDelta", String.valueOf(0)).
+                putString("etX", String.valueOf(0)).
+                putString("etY", String.valueOf(0)).commit();
+        finish();
+    }
+
+    private final Deque<String> logTvList = new LinkedList<>();
+    public void logTextView(String msg) {
+        tvLog.setText("");
+        if(logTvList.size() >= 10) {
+            logTvList.pollFirst();
+        }
+        logTvList.addLast(msg);
+        Iterator<String> iter = logTvList.iterator();
+        while(iter.hasNext()) {
+            tvLog.append(iter.next() + "\n");
         }
     }
 }
