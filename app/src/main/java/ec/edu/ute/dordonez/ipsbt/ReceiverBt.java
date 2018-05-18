@@ -34,13 +34,14 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
 /**
  * Created by dordonez on 9/dic/2017.
- * Modified by dordonez on 22/dic/2017.
+ * Modified by dordonez on 18/may/2018.
  */
 public class ReceiverBt extends Activity {
     private TextView tv;
@@ -186,7 +187,9 @@ public class ReceiverBt extends Activity {
             switch (intent.getAction()) {
                 case BluetoothDevice.ACTION_FOUND:
                     int rssi = intent.getShortExtra(BluetoothDevice.EXTRA_RSSI,Short.MIN_VALUE);
-                    String name = intent.getStringExtra(BluetoothDevice.EXTRA_NAME).toLowerCase();
+                    String name = intent.getStringExtra(BluetoothDevice.EXTRA_NAME);
+                    if(name == null) name = "NOMBRE-NULO";
+                    name = name.toLowerCase();
                     int bx, by, rx, ry;
                     double dist;
                     if(balizasActivas.get(name) != null) {
@@ -307,16 +310,29 @@ public class ReceiverBt extends Activity {
         finish();
     }
 
-    private final Deque<String> logTvList = new LinkedList<>();
+    private final List<String> logTvList = new LinkedList<>();
     public void logTextView(String msg) {
         tvLog.setText("");
         if(logTvList.size() >= 10) {
-            logTvList.pollFirst();
+            logTvList.remove(0);
         }
-        logTvList.addLast(msg);
+        logTvList.add(msg);
         Iterator<String> iter = logTvList.iterator();
         while(iter.hasNext()) {
             tvLog.append(iter.next() + "\n");
         }
     }
+
+//    private final Deque<String> logTvList = new LinkedList<>();
+//    public void logTextView(String msg) {
+//        tvLog.setText("");
+//        if(logTvList.size() >= 10) {
+//            logTvList.pollFirst();
+//        }
+//        logTvList.addLast(msg);
+//        Iterator<String> iter = logTvList.iterator();
+//        while(iter.hasNext()) {
+//            tvLog.append(iter.next() + "\n");
+//        }
+//    }
 }
