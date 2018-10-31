@@ -195,8 +195,16 @@ public class ReceiverBt extends Activity {
                     if(balizasActivas.get(name) != null) {
                         bx = Integer.parseInt(balizasActivas.get(name).first);
                         by = Integer.parseInt(balizasActivas.get(name).second);
-                        rx = Integer.parseInt(etX.getText().toString());
-                        ry = Integer.parseInt(etY.getText().toString());
+                        if(etX.getText().toString().equals("")) {
+                            rx = 0;
+                        } else {
+                            rx = Integer.parseInt(etX.getText().toString());
+                        }
+                        if(etY.getText().toString().equals("")) {
+                            ry = 0;
+                        } else {
+                            ry = Integer.parseInt(etY.getText().toString());
+                        }
                         dist = Math.sqrt(Math.pow(bx-rx, 2) + Math.pow(by-ry, 2) );
                     } else {
                         dist = bx = by = rx = ry = Short.MIN_VALUE;
